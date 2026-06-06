@@ -1,0 +1,32 @@
+services:
+  
+  # ---- PostgresSQL Database Service ----
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: TASK_MANAGEMENT
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  # --- pgadmin Web Interface Service ---
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres_db
+    restart: always
+
+# --- Named Volumes for Data Persistence ---
+volumes:
+  pgdata:

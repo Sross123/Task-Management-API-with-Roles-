@@ -74,7 +74,7 @@ export class AuthService {
       role: user?.role,
     };
 
-    const access_token = await this.jwtService.signAsync(payload,{
+    const access_token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: this.configService.get('JWT_EXPIRATION'),
     });
@@ -92,5 +92,9 @@ export class AuthService {
       access_token,
       refresh_token,
     };
+  }
+
+  async findAll() {
+    return await this.userService.getAllUsers()
   }
 }
