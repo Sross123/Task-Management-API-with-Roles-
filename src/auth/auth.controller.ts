@@ -24,7 +24,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.USER)
+  @Roles(Role.ADMIN)
   @Get('users')
   findAll() {
     return this.authService.findAll();
