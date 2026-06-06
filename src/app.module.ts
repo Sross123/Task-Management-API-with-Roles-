@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { LoggingInterceptor } from './logging.interceptor';
 import { PrismaModule } from './prisma/prisma.module';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PrismaModule } from './prisma/prisma.module';
     UserModule,
     AuthModule,
     PrismaModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [

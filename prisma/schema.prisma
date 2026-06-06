@@ -18,12 +18,33 @@ enum Role {
   USER
 }
 
+enum Status {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
 model User {
   id       Int     @id @default(autoincrement())
   email    String  @unique
   name     String?
   password String
   role     Role    @default(USER)
+
+  tasks Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id          Int    @id @default(autoincrement())
+  task        String
+  description String
+  status      Status @default(TODO)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
