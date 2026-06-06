@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { LoggingInterceptor } from './logging.interceptor';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -13,8 +14,9 @@ import { LoggingInterceptor } from './logging.interceptor';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    AuthModule,
     UserModule,
+    AuthModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [
