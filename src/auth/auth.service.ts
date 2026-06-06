@@ -1,13 +1,12 @@
 import {
   ConflictException,
   Injectable,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { UserService } from '../user/user.service';
 import bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { Role } from '../generated/prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -15,8 +14,9 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly configService: ConfigService,
   ) {}
+
   async register(createAuthDto: CreateAuthDto) {
-    const { email, name, password } = createAuthDto;
+    const { email, name, password, role } = createAuthDto;
 
     const user = await this.userService.getUserByEmail(email);
 
@@ -24,20 +24,20 @@ export class AuthService {
       throw new ConflictException('User already exists with this email');
     }
 
-    const saltRounds = Number(this.configService.get('SALT_ROUND'));
+    // Default to 10 rounds if configuration is missing or invalid
+    const saltRounds = Number(this.configService.get('SALT_ROUND') ?? 10);
+    const validatedSaltRounds = Number.isNaN(saltRounds) ? 10 : saltRounds;
 
-    if (Number.isNaN(saltRounds)) {
-      throw new InternalServerErrorException(
-        'Invalid SALT_ROUND configuration',
-      );
-    }
+    const hashedPassword = await bcrypt.hash(password, validatedSaltRounds);
 
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Map role correctly matching Prisma enum (defaulting to USER)
+    const mappedRole = role ? (role.toUpperCase() as Role) : Role.USER;
 
     const createdUser = await this.userService.createUser({
       name,
       email,
       password: hashedPassword,
+      role: mappedRole,
     });
 
     const { password: _, ...userData } = createdUser;
@@ -47,21 +47,5 @@ export class AuthService {
       message: 'User created successfully.',
       userData,
     };
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
   }
 }
