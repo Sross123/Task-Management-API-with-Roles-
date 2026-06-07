@@ -95,6 +95,6 @@ export class AuthService {
   }
 
   async findAll() {
-    return await this.userService.getAllUsers()
+    return await this.userService.getAllUsers();
   }
 }

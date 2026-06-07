@@ -1,34 +1,50 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { AuthGuard } from 'src/auth/guards/auth.guards';
+import type { Request } from 'express';
 
 @Controller('task')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) { }
 
-  @Post()
-  create(@Body() createTaskDto: CreateTaskDto) {
-    return this.taskService.create(createTaskDto);
+  @UseGuards(AuthGuard)
+  @Post('create')
+  create(@Body() createTaskDto: CreateTaskDto, @Req() req: Request) {
+    const userId = (req as any).user.sub;
+    return this.taskService.create(createTaskDto, userId);
   }
 
-  @Get()
-  findAll() {
-    return this.taskService.findAll();
+  @Get('get-all-tasks')
+  @UseGuards(AuthGuard)
+  findAll(@Req() req: Request) {
+    const userId = (req as any).user.sub;
+    const role = (req as any).user.role;
+    return this.taskService.findAll(role, userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.taskService.findOne(+id);
+  @UseGuards(AuthGuard)
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req as any).user.sub;
+    const role = (req as any).user.role;
+    return this.taskService.findOne(+id, role, userId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.taskService.update(+id, updateTaskDto);
+  @UseGuards(AuthGuard)
+  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Req() req: Request) {
+    const userId = (req as any).user.sub;
+    const role = (req as any).user.role;
+    return this.taskService.update(+id, updateTaskDto, role, userId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.taskService.remove(+id);
+  @UseGuards(AuthGuard)
+  remove(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req as any).user.sub;
+    const role = (req as any).user.role;
+    return this.taskService.remove(+id, role, userId);
   }
 }
